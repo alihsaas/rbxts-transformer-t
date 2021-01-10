@@ -1,0 +1,29 @@
+{
+  "name": "t-ts-transformer",
+  "version": "0.1.0",
+  "description": "A roblox-ts transformer that converts interfaces to t based interfaces",
+  "main": "out/index.js",
+  "scripts": {
+    "build": "tsc",
+    "prepare": "npm run build"
+  },
+  "author": "alihsaas",
+  "license": "ISC",
+  "dependencies": {
+    "@rbxts/t": "^2.1.1",
+    "typescript": "^4.1.2"
+  },
+  "devDependencies": {
+    "@rbxts/types": "^1.0.428",
+    "@typescript-eslint/eslint-plugin": "^4.9.0",
+    "@typescript-eslint/parser": "^4.9.0",
+    "eslint": "^7.14.0",
+    "eslint-config-prettier": "^6.15.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "prettier": "^2.2.1",
+    "@types/node": "^14.14.11"
+  },
+  "directories": {
+    "example": "example"
+  }
+}

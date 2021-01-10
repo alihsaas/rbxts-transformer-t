@@ -1,0 +1,20 @@
+{
+  "name": "example",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@rbxts/compiler-types": "^1.0.0-beta.14.0",
+    "@rbxts/types": "^1.0.437"
+  },
+  "dependencies": {
+    "@rbxts/t": "^2.1.1",
+    "t-ts-transformer": "file:.."
+  }
+}
