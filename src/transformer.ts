@@ -6,6 +6,18 @@ import * as utility from "./utility";
 
 export const OBJECT_NAME = "t";
 export const MARCO_NAME = "$terrify";
+export const instanceIsA = "instanceIsA";
+
+/**
+ * builds real path by relative path
+ */
+
+function getRealPath(filePath: string): string {
+
+	return path.join(__dirname, "..", filePath)
+}
+
+const indexTsPath = getRealPath('index.d.ts')
 
 function get_t_Path(): string {
 	try {
@@ -167,6 +179,20 @@ function convertMapType(type: ts.GenericType, typeChecker: ts.TypeChecker): ts.E
 }
 
 /**
+ * Converts instanceIsA type to a t.instanceIsA call
+ */
+
+function convertInstanceIsAType(type: ts.GenericType, typeChecker: ts.TypeChecker): ts.Expression {
+
+	const args = type.typeArguments
+
+	if (args === undefined)
+		throw new Error("instanceIsA must have className type argument")
+
+	return createMethodCall("instanceIsA", [factory.createStringLiteral(typeChecker.typeToString(args[0]))])
+}
+
+/**
  * Converts Array of object properties to t.interface Expression. If there are
  * optional properties, they will be built as separate objects
  * and mixed to main object using t.intersection function
@@ -278,12 +304,21 @@ export function is_t_ImportDeclaration(program: ts.Program) {
 export function buildType(type: ts.Type, typeChecker: ts.TypeChecker): ts.Expression {
 	const stringType = typeChecker.typeToString(type)
 
+	// const symbol = getAliasedSymbolOfNode(type, typeChecker)
+
 	// Checking for error cases
 	if (stringType === "never")
 		throw new Error("Never type transformation is not supported")
 
 	if (type.isClass())
 		throw new Error("Transformation of classes is not supported")
+
+	const typeId = getTypeId(type)
+
+	const fromIoTs = data.usageOfInstanceIsA[typeId]
+
+	if (fromIoTs !== undefined)
+		return createMethodCall("instanceIsA", [factory.createStringLiteral(stringType)])
 
 	// Basic types transformation
 	if (["null", "undefined", "void", "unknown"].includes(stringType))
@@ -319,7 +354,11 @@ export function buildType(type: ts.Type, typeChecker: ts.TypeChecker): ts.Expres
 
 	// Complex types transformation
 	try {
-		if (utility.isMapType(type))
+
+		if (utility.isInstanceIsA(type))
+			return convertInstanceIsAType(type, typeChecker)
+
+		else if (utility.isMapType(type))
 			return convertMapType(type, typeChecker)
 
 		if (type.isUnion())

@@ -75,6 +75,15 @@ export function isMapType(type: ts.Type): type is ts.GenericType {
 	return type.symbol?.getName() === "Map"
 }
 
+
+/**
+ * Checks if ts.Type is of isInstance type
+ */
+
+export function isInstanceIsA(type: ts.Type): type is ts.GenericType {
+	return type.symbol?.getName() === "instanceIsA"
+}
+
 /**
  * Checks if ts.Type is of Map type
  */
