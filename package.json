@@ -1,7 +1,7 @@
 {
   "name": "t-ts-transformer",
   "version": "0.1.0",
-  "description": "A roblox-ts transformer that converts interfaces to t based interfaces",
+  "description": "TypeScript transformer which converts TypeScript types to t entities",
   "main": "out/index.js",
   "scripts": {
     "build": "tsc",
@@ -25,5 +25,13 @@
   },
   "directories": {
     "example": "example"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alihsaas/t-ts-transformer.git"
+  },
+  "bugs": {
+    "url": "https://github.com/alihsaas/t-ts-transformer/issues"
+  },
+  "homepage": "https://github.com/alihsaas/t-ts-transformer#readme"
 }

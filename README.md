@@ -27,7 +27,6 @@ import { $terrify } from "t-ts-transformer";
 interface Data {
 	Color: Color3;
 	Name: string;
-
 	Material: Enum.Material;
 }
 
@@ -39,7 +38,7 @@ const tType = $terrify<Data>();
 ```lua
 local t = TS.import(script, TS.getModule(script, "t").lib.ts).t
 
-local t_Type = t.interface({
+local tType = t.interface({
 	Color = t.Color3,
 	Name = t.string,
 	Material = t.enum(Enum.Material),
