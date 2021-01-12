@@ -1,20 +1,20 @@
-# t-ts-transformer
+# rbxts-transformer-t
 TypeScript transformer which converts TypeScript types to t entities
 
 # Installation
 
 To install this package run the following command:
 
-`npm i t-ts-transformer`
+`npm i rbxts-transformer-t`
 
 # Usage
 
-To use this transformer you have to add `t-ts-transformer` to your `tsconfig.json` file in `compilerOptions` config
+To use this transformer you have to add `rbxts-transformer-t` to your `tsconfig.json` file in `compilerOptions` config
 
 ```json
 "plugins": [
 	{
-		"transform": "t-ts-transformer",
+		"transform": "rbxts-transformer-t",
 	}
 ]
 ```
@@ -22,7 +22,7 @@ To use this transformer you have to add `t-ts-transformer` to your `tsconfig.jso
 ## Before
 
 ```ts
-import { $terrify } from "t-ts-transformer";
+import { $terrify } from "rbxts-transformer-t";
 
 interface Data {
 	Color: Color3;
@@ -85,7 +85,7 @@ t.interface({
 
 2) Work with dynamic type parameters, i.e. `$terrify<T>()` in the following code will error:
 ```typescript
-import { $terrify } from 't-ts-transformer'
+import { $terrify } from 'rbxts-transformer-t'
 
 function convertEntity<T>(entity: T) {
   return $terrify<T>()

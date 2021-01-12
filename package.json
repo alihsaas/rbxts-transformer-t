@@ -1,5 +1,5 @@
 {
-  "name": "t-ts-transformer",
+  "name": "rbxts-transformer-t",
   "version": "0.1.1",
   "description": "TypeScript transformer which converts TypeScript types to t entities",
   "main": "out/index.js",
@@ -28,10 +28,17 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/alihsaas/t-ts-transformer.git"
+    "url": "git+https://github.com/alihsaas/rbxts-transformer-t.git"
   },
   "bugs": {
-    "url": "https://github.com/alihsaas/t-ts-transformer/issues"
+    "url": "https://github.com/alihsaas/rbxts-transformer-t/issues"
   },
-  "homepage": "https://github.com/alihsaas/t-ts-transformer#readme"
+  "homepage": "https://github.com/alihsaas/rbxts-transformer-t#readme",
+  "keywords": [
+    "t",
+    "@rbxts",
+    "@rbxts/t",
+    "transformer",
+    "interface"
+  ]
 }
