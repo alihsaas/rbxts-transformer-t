@@ -193,3 +193,61 @@ export function getNodeReplacer(predicate: NodePredicate, replacement: ts.Node):
 		return [node, replaced]
 	}
 }
+
+/**
+ * Returns aliased symbol of ts.Symbol or
+ * this symbol itself if it is aliased
+ */
+
+export function getAliasedSymbol(symbol: ts.Symbol, typeChecker: ts.TypeChecker): ts.Symbol {
+
+	try {
+		return typeChecker.getAliasedSymbol(symbol)
+	} catch (_) { return symbol }
+}
+
+/**
+ * Returns aliased symbol of ts.Identifier
+ */
+
+export function getAliasedSymbolOfNode(node: ts.Identifier, typeChecker: ts.TypeChecker): ts.Symbol | undefined {
+
+	const symbol = typeChecker.getSymbolAtLocation(node)
+
+	if (symbol === undefined)
+		return undefined
+
+	return getAliasedSymbol(symbol, typeChecker)
+}
+
+/**
+ * Checks is symbol belongs to declaration
+ * with name 'name' located in file filePath
+ */
+
+export function isSymbolOf(symbol: ts.Symbol, name: string, filePath: string): boolean {
+
+	if (symbol.escapedName !== name)
+		return false
+
+	return [symbol.valueDeclaration, ...symbol.declarations].filter(Boolean)
+		.some(declaration => path.join(declaration.getSourceFile().fileName) === filePath)
+}
+
+/**
+ * Returns id of ts.Type
+ */
+
+export function getTypeId(type: ts.Type): number {
+
+	return (<any>type).id
+}
+
+/**
+ * Merges two objects
+ */
+
+export function mergeObjects<K extends string | number, V>(obj1: Record<K, V>, obj2: Record<K, V>): Record<K, V> {
+
+	return { ...obj1, ...obj2 }
+}

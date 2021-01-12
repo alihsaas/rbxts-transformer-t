@@ -179,20 +179,6 @@ function convertMapType(type: ts.GenericType, typeChecker: ts.TypeChecker): ts.E
 }
 
 /**
- * Converts instanceIsA type to a t.instanceIsA call
- */
-
-function convertInstanceIsAType(type: ts.GenericType, typeChecker: ts.TypeChecker): ts.Expression {
-
-	const args = type.typeArguments
-
-	if (args === undefined)
-		throw new Error("instanceIsA must have className type argument")
-
-	return createMethodCall("instanceIsA", [factory.createStringLiteral(typeChecker.typeToString(args[0]))])
-}
-
-/**
  * Converts Array of object properties to t.interface Expression. If there are
  * optional properties, they will be built as separate objects
  * and mixed to main object using t.intersection function
@@ -301,10 +287,51 @@ export function is_t_ImportDeclaration(program: ts.Program) {
 	}
 }
 
+/**
+ * Finds all FromIoTs usages in the file
+ * and returns a record of type ids and
+ * expressions that types to be replaced
+ */
+
+export const data: { usageOfInstanceIsA: Record<number, ts.Type> } = {
+	usageOfInstanceIsA: {}
+}
+
+export function findInstanceIsAUsages(file: ts.SourceFile, typeChecker: ts.TypeChecker): Record<number, ts.Type> {
+
+	const handleNode = (node: ts.Identifier): Record<number, ts.Type> => {
+
+		if (ts.isImportSpecifier(node.parent))
+			return {}
+
+		const symbol = utility.getAliasedSymbolOfNode(node, typeChecker)
+
+		if (symbol === undefined || !utility.isSymbolOf(symbol, instanceIsA, indexTsPath))
+			return {}
+
+		const parent = ts.isPropertyAccessOrQualifiedName(node.parent) ? node.parent.parent : node.parent
+
+		const args = (<any>parent).typeArguments
+
+		const type = typeChecker.getTypeFromTypeNode(<any>parent)
+
+		return { [utility.getTypeId(type)]: args[0] }
+	}
+
+	const visitor = (node: ts.Node): Record<number, ts.Type> => {
+
+		const nodeResult = ts.isIdentifier(node) ? handleNode(node) : {}
+
+		const childrenResult = node.getChildren().map(visitor)
+
+		return [nodeResult, ...childrenResult].reduce(utility.mergeObjects)
+	}
+
+	return visitor(file)
+}
+
 export function buildType(type: ts.Type, typeChecker: ts.TypeChecker): ts.Expression {
 	const stringType = typeChecker.typeToString(type)
-
-	// const symbol = getAliasedSymbolOfNode(type, typeChecker)
 
 	// Checking for error cases
 	if (stringType === "never")
@@ -313,7 +340,7 @@ export function buildType(type: ts.Type, typeChecker: ts.TypeChecker): ts.Expres
 	if (type.isClass())
 		throw new Error("Transformation of classes is not supported")
 
-	const typeId = getTypeId(type)
+	const typeId = utility.getTypeId(type)
 
 	const fromIoTs = data.usageOfInstanceIsA[typeId]
 
@@ -355,10 +382,7 @@ export function buildType(type: ts.Type, typeChecker: ts.TypeChecker): ts.Expres
 	// Complex types transformation
 	try {
 
-		if (utility.isInstanceIsA(type))
-			return convertInstanceIsAType(type, typeChecker)
-
-		else if (utility.isMapType(type))
+		if (utility.isMapType(type))
 			return convertMapType(type, typeChecker)
 
 		if (type.isUnion())
