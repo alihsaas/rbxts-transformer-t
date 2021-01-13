@@ -248,7 +248,7 @@ function convertInterfaceType(type: ts.InterfaceType, typeChecker: ts.TypeChecke
 	return createMethodCall("intersection", nodesArray)
 }
 
-let tPath = fs.readFileSync( path.join(get_t_Path(), "lib", "t.d.ts"), "utf8")
+let tTypeDefinitions = fs.readFileSync(path.join(get_t_Path(), "lib", "t.d.ts"), "utf8")
 
 export function is_t_ImportDeclaration(program: ts.Program) {
 	return (node: ts.Node) => {
@@ -267,7 +267,7 @@ export function is_t_ImportDeclaration(program: ts.Program) {
 
 		const importSymbol = program.getTypeChecker().getSymbolAtLocation(node.moduleSpecifier);
 
-		if (!importSymbol || (importSymbol.valueDeclaration.getSourceFile().text !== tPath)) {
+		if (!importSymbol || importSymbol.valueDeclaration.getSourceFile().text !== tTypeDefinitions) {
 			return false;
 		}
 

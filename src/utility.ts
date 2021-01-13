@@ -152,8 +152,7 @@ export function buildPropertyName(name: string): string | ts.StringLiteral {
  */
 
 type MappingFunction = {
-	(node: ts.SourceFile, program: ts.Program): ts.SourceFile
-	(node: ts.Node, program: ts.Program): ts.Node | undefined
+	(node: ts.Node, program: ts.Program): [ts.Node, boolean]
 }
 
 /**
@@ -164,21 +163,24 @@ type NodePredicate<T extends ts.Node = ts.Node> = (node: T) => boolean
 
 /**
  * Returns mapping function that replaces
- * single node satisfies the passed predicate
- * with a replacement node passed
+ * nodes that satisfy the passed predicate
+ * with a replacement node passed but skips the first appearance
  */
 
-export function getSingleNodeReplacer(predicate: NodePredicate, replacement: ts.Node): MappingFunction {
+export function getNodeReplacer(predicate: NodePredicate, replacement: ts.Node): MappingFunction {
 
 	let replaced = false
 
-	return (node: any) => {
+	return (node: ts.Node) => {
+
+		if (replaced && predicate(node))
+			return [replacement, replaced]
 
 		if (replaced || !predicate(node))
-			return node
+			return [node, replaced]
 
 		replaced = true
 
-		return replacement
+		return [node, replaced]
 	}
 }

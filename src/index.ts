@@ -5,6 +5,8 @@ import * as utility from "./utility";
 import * as transformerUtil from "./transformer";
 import { buildType } from "./transformer";
 
+let didReplaceImport = false;
+
 export default function transformer(program: ts.Program): ts.TransformerFactory<ts.SourceFile> {
 	console.log(`[t-ts-transformer INFO] If you get any problems using this transformer, please
 	leave an issue on GitHub https://github.com/alihsaas/t-ts-transformer/issues with your type example`)
@@ -13,11 +15,15 @@ export default function transformer(program: ts.Program): ts.TransformerFactory<
 
 		const replaceIndexNode = (file: ts.SourceFile) => {
 
-			const replacer = utility.getSingleNodeReplacer(
+			const replacer = utility.getNodeReplacer(
 				transformerUtil.is_t_ImportDeclaration(program), factory.createEmptyStatement()
 			)
 
-			return ts.visitEachChild(file, node => replacer(node, program), context)
+			return ts.visitEachChild(file, node => {
+				const [replacement, didReplace] = replacer(node, program);
+				didReplaceImport = didReplace
+				return replacement
+			}, context)
 		}
 
 		return visitNodeAndChildren(replaceIndexNode(file), program, context);
@@ -33,21 +39,22 @@ function visitNodeAndChildren(node: ts.Node, program: ts.Program, context: ts.Tr
 function visitNode(node: ts.SourceFile, program: ts.Program): ts.SourceFile;
 function visitNode(node: ts.Node, program: ts.Program): ts.Node | undefined;
 function visitNode(node: ts.Node, program: ts.Program): ts.Node | undefined {
-	if (isModuleImportExpression(node, program)) {
-		return factory.createImportDeclaration(undefined, undefined,
-			factory.createImportClause(
-				false,
-				undefined,
-				factory.createNamedImports([
-					factory.createImportSpecifier(undefined, factory.createIdentifier(transformerUtil.OBJECT_NAME))
-				]),
-			),
-			factory.createStringLiteral("@rbxts/t"));
-	}
+	if (isModuleImportExpression(node, program))
+		if (didReplaceImport)
+			return factory.createEmptyStatement()
+		else
+			return factory.createImportDeclaration(undefined, undefined,
+				factory.createImportClause(
+					false,
+					undefined,
+					factory.createNamedImports([
+						factory.createImportSpecifier(undefined, factory.createIdentifier(transformerUtil.OBJECT_NAME))
+					]),
+				),
+				factory.createStringLiteral("@rbxts/t"));
 
-	if (ts.isCallExpression(node)) {
+	if (ts.isCallExpression(node))
 		return visitCallExpression(node, program);
-	}
 
 	return node;
 }
@@ -77,18 +84,16 @@ function handleTerrifyCallExpression(
 function visitCallExpression(node: ts.CallExpression, program: ts.Program) {
 	const typeChecker = program.getTypeChecker();
 	const signature = typeChecker.getResolvedSignature(node);
-	if (!signature) {
+	if (!signature)
 		return node;
-	}
+
 	const { declaration } = signature;
-	if (!declaration || ts.isJSDocSignature(declaration) || !isModule(declaration.getSourceFile())) {
+	if (!declaration || ts.isJSDocSignature(declaration) || !isModule(declaration.getSourceFile()))
 		return node;
-	}
 
 	const functionName = declaration.name && declaration.name.getText();
-	if (!functionName) {
+	if (!functionName)
 		return node;
-	}
 
 	return handleTerrifyCallExpression(node, functionName, typeChecker);
 }
@@ -99,24 +104,20 @@ function isModule(sourceFile: ts.SourceFile) {
 }
 
 function isModuleImportExpression(node: ts.Node, program: ts.Program) {
-	if (!ts.isImportDeclaration(node)) {
+	if (!ts.isImportDeclaration(node))
 		return false;
-	}
 
-	if (!node.importClause) {
+	if (!node.importClause)
 		return false;
-	}
 
 	const namedBindings = node.importClause.namedBindings;
-	if (!node.importClause.name && !namedBindings) {
+	if (!node.importClause.name && !namedBindings)
 		return false;
-	}
 
 	const importSymbol = program.getTypeChecker().getSymbolAtLocation(node.moduleSpecifier);
 
-	if (!importSymbol || !isModule(importSymbol.valueDeclaration.getSourceFile())) {
+	if (!importSymbol || !isModule(importSymbol.valueDeclaration.getSourceFile()))
 		return false;
-	}
 
 	return true;
 }
