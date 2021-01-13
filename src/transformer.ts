@@ -1,8 +1,19 @@
 import ts, { factory } from "typescript";
+import { getInstalledPathSync } from 'get-installed-path';
+import path from "path";
+import fs from "fs";
 import * as utility from "./utility";
 
 export const OBJECT_NAME = "t";
 export const MARCO_NAME = "$terrify";
+
+function get_t_Path(): string {
+	try {
+		return getInstalledPathSync("@rbxts/t", { local: true })
+	} catch {
+		throw "[rbxts-transformer-t ERROR]: @rbxts/t must be installed for rbxts-transformer-t to work."
+	}
+}
 
 const ROBLOX_TYPES = [
 	"Axes",
@@ -210,7 +221,7 @@ function convertObjectType(props: ts.Symbol[], typeChecker: ts.TypeChecker): ts.
 }
 
 /**
- * Converts interface type to to TypeTransformationResult
+ * Converts interface type to to ts.Expression
  */
 
 function convertInterfaceType(type: ts.InterfaceType, typeChecker: ts.TypeChecker): ts.Expression {
@@ -235,6 +246,33 @@ function convertInterfaceType(type: ts.InterfaceType, typeChecker: ts.TypeChecke
 	const nodesArray = [object, ...parentsTransformed]
 
 	return createMethodCall("intersection", nodesArray)
+}
+
+let tPath = fs.readFileSync( path.join(get_t_Path(), "lib", "t.d.ts"), "utf8")
+
+export function is_t_ImportDeclaration(program: ts.Program) {
+	return (node: ts.Node) => {
+		if (!ts.isImportDeclaration(node)) {
+			return false;
+		}
+
+		if (!node.importClause) {
+			return false;
+		}
+
+		const namedBindings = node.importClause.namedBindings;
+		if (!node.importClause.name && !namedBindings) {
+			return false;
+		}
+
+		const importSymbol = program.getTypeChecker().getSymbolAtLocation(node.moduleSpecifier);
+
+		if (!importSymbol || (importSymbol.valueDeclaration.getSourceFile().text !== tPath)) {
+			return false;
+		}
+
+		return true;
+	}
 }
 
 export function buildType(type: ts.Type, typeChecker: ts.TypeChecker): ts.Expression {
@@ -300,8 +338,8 @@ export function buildType(type: ts.Type, typeChecker: ts.TypeChecker): ts.Expres
 			return convertInterfaceType(type, typeChecker)
 
 	} catch (err) {
-		throw new Error(`[t-ts-transformer ERROR]: Failed to build type ${stringType} with error ${err}`)
+		throw `[t-ts-transformer ERROR]: Failed to build type ${stringType} with error ${err}`
 	}
 
-	throw new Error(`Cannot build type ${stringType}`)
+	throw `Cannot build type ${stringType}`
 }

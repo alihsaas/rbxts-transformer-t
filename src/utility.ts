@@ -1,4 +1,5 @@
 import ts from "typescript";
+import path from "path";
 
 /**
  * Concatenates two arrays and removes duplicates
@@ -144,4 +145,40 @@ export function buildPropertyName(name: string): string | ts.StringLiteral {
 		return name
 
 	return ts.factory.createStringLiteral(name)
+}
+
+/**
+ * Represents function that maps single node
+ */
+
+type MappingFunction = {
+	(node: ts.SourceFile, program: ts.Program): ts.SourceFile
+	(node: ts.Node, program: ts.Program): ts.Node | undefined
+}
+
+/**
+ * Predicate accepts ts.Node or it's subtypes
+ */
+
+type NodePredicate<T extends ts.Node = ts.Node> = (node: T) => boolean
+
+/**
+ * Returns mapping function that replaces
+ * single node satisfies the passed predicate
+ * with a replacement node passed
+ */
+
+export function getSingleNodeReplacer(predicate: NodePredicate, replacement: ts.Node): MappingFunction {
+
+	let replaced = false
+
+	return (node: any) => {
+
+		if (replaced || !predicate(node))
+			return node
+
+		replaced = true
+
+		return replacement
+	}
 }

@@ -1,13 +1,27 @@
 import ts, { factory } from 'typescript';
 import path from 'path';
 import fs from 'fs';
-import { buildType, OBJECT_NAME, MARCO_NAME } from "./transformer";
+import * as utility from "./utility";
+import * as transformerUtil from "./transformer";
+import { buildType } from "./transformer";
 
 export default function transformer(program: ts.Program): ts.TransformerFactory<ts.SourceFile> {
-	console.log(`[t-ts-transformer INFO] If you will get any problems using this transformer, please
-	leave an issue on GitHub https://github.com/alihsaas/t-ts-transformer/issues with your types example`)
+	console.log(`[t-ts-transformer INFO] If you get any problems using this transformer, please
+	leave an issue on GitHub https://github.com/alihsaas/t-ts-transformer/issues with your type example`)
 
-	return (context: ts.TransformationContext) => (file: ts.SourceFile) => visitNodeAndChildren(file, program, context);
+	return (context: ts.TransformationContext) => (file: ts.SourceFile) => {
+
+		const replaceIndexNode = (file: ts.SourceFile) => {
+
+			const replacer = utility.getSingleNodeReplacer(
+				transformerUtil.is_t_ImportDeclaration(program), factory.createEmptyStatement()
+			)
+
+			return ts.visitEachChild(file, node => replacer(node, program), context)
+		}
+
+		return visitNodeAndChildren(replaceIndexNode(file), program, context);
+	}
 }
 
 function visitNodeAndChildren(node: ts.SourceFile, program: ts.Program, context: ts.TransformationContext): ts.SourceFile;
@@ -25,7 +39,7 @@ function visitNode(node: ts.Node, program: ts.Program): ts.Node | undefined {
 				false,
 				undefined,
 				factory.createNamedImports([
-					factory.createImportSpecifier(undefined, factory.createIdentifier(OBJECT_NAME))
+					factory.createImportSpecifier(undefined, factory.createIdentifier(transformerUtil.OBJECT_NAME))
 				]),
 			),
 			factory.createStringLiteral("@rbxts/t"));
@@ -44,7 +58,7 @@ function handleTerrifyCallExpression(
 	typeChecker: ts.TypeChecker,
 ) {
 	switch (functionName) {
-		case MARCO_NAME: {
+		case transformerUtil.MARCO_NAME: {
 
 			const typeArguments = node.typeArguments
 
