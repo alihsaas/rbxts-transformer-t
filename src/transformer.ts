@@ -1,5 +1,5 @@
 import ts, { factory } from "typescript";
-import { getInstalledPathSync } from 'get-installed-path';
+import { getInstalledPathSync } from "get-installed-path";
 import path from "path";
 import fs from "fs";
 import * as utility from "./utility";
@@ -17,7 +17,7 @@ function getRealPath(filePath: string): string {
 	return path.join(__dirname, "..", filePath)
 }
 
-const indexTsPath = getRealPath('index.d.ts')
+const indexTsPath = getRealPath("index.d.ts")
 
 function get_t_Path(): string {
 	try {

@@ -1,6 +1,6 @@
-import ts, { factory } from 'typescript';
-import path from 'path';
-import fs from 'fs';
+import ts, { factory } from "typescript";
+import path from "path";
+import fs from "fs";
 import * as utility from "./utility";
 import * as transformerUtil from "./transformer";
 import { buildType } from "./transformer";
@@ -26,11 +26,11 @@ export default function transformer(program: ts.Program): ts.TransformerFactory<
 			}, context)
 		}
 
-    	const typeChecker = program.getTypeChecker()
+		const typeChecker = program.getTypeChecker()
 
-		transformerUtil.data.usageOfInstanceIsA = findInstanceIsAUsages(file, typeChecker)
+		transformerUtil.data.usageOfInstanceIsA = transformerUtil.findInstanceIsAUsages(file, typeChecker)
 
-		return visitNodeAndChildren(replaceIndexNode(file), program, context);
+		return visitNodeAndChildren(replaceIndexNode(file), program, context)
 	}
 }
 
@@ -42,20 +42,23 @@ function visitNodeAndChildren(node: ts.Node, program: ts.Program, context: ts.Tr
 
 function visitNode(node: ts.SourceFile, program: ts.Program): ts.SourceFile;
 function visitNode(node: ts.Node, program: ts.Program): ts.Node | undefined;
-function visitNode(node: ts.Node, program: ts.Program): ts.Node | undefined {
+function visitNode(node: ts.Node, program: ts.Program): ts.VisitResult<ts.Node> | undefined {
 	if (isModuleImportExpression(node, program))
 		if (didReplaceImport)
-			return factory.createEmptyStatement()
+			return node // factory.createEmptyStatement()
 		else
-			return factory.createImportDeclaration(undefined, undefined,
-				factory.createImportClause(
-					false,
-					undefined,
-					factory.createNamedImports([
-						factory.createImportSpecifier(undefined, factory.createIdentifier(transformerUtil.OBJECT_NAME))
-					]),
-				),
-				factory.createStringLiteral("@rbxts/t"));
+			return [
+				factory.createImportDeclaration(undefined, undefined,
+					factory.createImportClause(
+						false,
+						undefined,
+						factory.createNamedImports([
+							factory.createImportSpecifier(undefined, factory.createIdentifier(transformerUtil.OBJECT_NAME))
+						]),
+					),
+					factory.createStringLiteral("@rbxts/t")),
+				node
+			]
 
 	if (ts.isCallExpression(node))
 		return visitCallExpression(node, program);

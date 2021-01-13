@@ -102,7 +102,7 @@ export function isBrickColorType(type: ts.Type): type is ts.GenericType {
 
 export function isObjectType(type: ts.Type): type is ts.ObjectType {
 
-	return type.symbol?.getName() === '__type'
+	return type.symbol?.getName() === "__type"
 }
 
 /**
@@ -165,7 +165,7 @@ type MappingFunction = {
 }
 
 /**
- * Predicate accepts ts.Node or it's subtypes
+ * Predicate accepts ts.Node or it"s subtypes
  */
 
 type NodePredicate<T extends ts.Node = ts.Node> = (node: T) => boolean
@@ -222,7 +222,7 @@ export function getAliasedSymbolOfNode(node: ts.Identifier, typeChecker: ts.Type
 
 /**
  * Checks is symbol belongs to declaration
- * with name 'name' located in file filePath
+ * with name "name" located in file filePath
  */
 
 export function isSymbolOf(symbol: ts.Symbol, name: string, filePath: string): boolean {
