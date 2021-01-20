@@ -143,7 +143,10 @@ function convertTupleType(type: ts.TupleType, typeChecker: ts.TypeChecker): ts.E
 
 	const result = convertTypesArray((<any>type).resolvedTypeArguments, typeChecker)
 
-	return createMethodCall("tuple", result)
+	if (tTypeDefinitions.includes("tuple"))
+		return createMethodCall("tuple", result)
+	else
+		throw "[t-ts-transformer ERROR]: tuples are not supported by t."
 }
 
 /**
@@ -401,7 +404,7 @@ export function buildType(type: ts.Type, typeChecker: ts.TypeChecker): ts.Expres
 			return convertInterfaceType(type, typeChecker)
 
 	} catch (err) {
-		throw `[t-ts-transformer ERROR]: Failed to build type ${stringType} with error ${err}`
+		throw `[t-ts-transformer ERROR]: Failed to build type ${stringType}\n${err}`
 	}
 
 	throw `Cannot build type ${stringType}`
