@@ -20,6 +20,8 @@ interface Type extends ExtendedType {
 	OptionalType?: number;
 	AnotherOptionalType?: BrickColor;
 
+	ArrayType: number[];
+
 	RobloxType: Enum;
 	AnotherRobloxType: Instance;
 
