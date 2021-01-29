@@ -21,6 +21,7 @@ interface Type extends ExtendedType {
 	AnotherOptionalType?: BrickColor;
 
 	ArrayType: number[];
+    TupleType: [number, string, Enum.Material];
 
 	RobloxType: Enum;
 	AnotherRobloxType: Instance;
@@ -38,7 +39,7 @@ interface Type extends ExtendedType {
 	instanceIsA: instanceIsA<BasePart>
 }
 
-const terrifiedType = $terrify<Type>()
+const terrifiedType = $terrify<Type>();
 
 export function makeHello(name: string) {
 	return `Hello from ${name}!`;

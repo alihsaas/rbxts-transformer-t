@@ -143,10 +143,7 @@ function convertTupleType(type: ts.TupleType, typeChecker: ts.TypeChecker): ts.E
 
 	const result = convertTypesArray((<any>type).resolvedTypeArguments, typeChecker)
 
-	if (tTypeDefinitions.includes("tuple"))
-		return createMethodCall("tuple", result)
-	else
-		throw "[t-ts-transformer ERROR]: tuples are not supported by t."
+	return createMethodCall("strictArray", result)
 }
 
 /**
