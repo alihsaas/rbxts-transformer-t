@@ -252,6 +252,19 @@ function convertInterfaceType(type: ts.InterfaceType, typeChecker: ts.TypeChecke
 	return createMethodCall("intersection", nodesArray)
 }
 
+function convertEnumType(type: ts.Type, typeChecker: ts.TypeChecker): ts.Expression {
+    const result: ts.Expression[] = []
+
+    console.log(type.symbol.exports?.forEach((value, index) => {
+
+        console.log(value)
+
+        result.push(factory.createStringLiteral(index.toString()))
+    }))
+
+    return createMethodCall("literal", result)
+}
+
 let tTypeDefinitions = fs.readFileSync(path.join(get_t_Path(), "lib", "t.d.ts"), "utf8")
 
 export function is_t_ImportDeclaration(program: ts.Program) {
@@ -270,7 +283,7 @@ export function is_t_ImportDeclaration(program: ts.Program) {
 		}
 
 		const importSymbol = program.getTypeChecker().getSymbolAtLocation(node.moduleSpecifier);
-
+8
 		if (!importSymbol || importSymbol.valueDeclaration.getSourceFile().text !== tTypeDefinitions) {
 			return false;
 		}
@@ -327,6 +340,9 @@ export function buildType(type: ts.Type, typeChecker: ts.TypeChecker): ts.Expres
 
 	// Complex types transformation
 	try {
+
+        if (utility.isCustomEnum(type))
+            return convertEnumType(type, typeChecker)
 
 		if (utility.isMapType(type))
 			return convertMapType(type, typeChecker)

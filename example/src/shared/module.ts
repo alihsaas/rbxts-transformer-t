@@ -8,6 +8,11 @@ interface ReferenceType {
 	SomeProperty: Color3;
 }
 
+enum CustomEnum {
+    Foo,
+    Baz,
+}
+
 interface Type extends ExtendedType {
 	StringType: string;
 	NumberType: number;
@@ -36,7 +41,9 @@ interface Type extends ExtendedType {
 
 	enum: Enum.Material;
 	map: Map<Instance, string>;
-	instanceIsA: Folder
+	instanceIsA: Folder;
+
+    CustomEnum: CustomEnum;
 }
 
 const terrifiedType = $terrify<Type>();

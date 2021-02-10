@@ -75,15 +75,6 @@ export function isMapType(type: ts.Type): type is ts.GenericType {
 	return type.symbol?.getName() === "Map"
 }
 
-
-/**
- * Checks if ts.Type is of isInstance type
- */
-
-export function isInstanceIsA(type: ts.Type): type is ts.GenericType {
-	return type.symbol?.getName() === "instanceIsA"
-}
-
 /**
  * Checks if ts.Type is of Map type
  */
@@ -123,6 +114,10 @@ export function isOptionalPropertyDeclaration(prop: ts.Symbol): boolean {
 
 export function isLiteral(typeChecker: ts.TypeChecker): (type: ts.Type) => boolean {
 	return (type: ts.Type): boolean => type.isLiteral() || ["true", "false"].includes(typeChecker.typeToString(type))
+}
+
+export function isCustomEnum(type: ts.Type) {
+    return type.symbol?.valueDeclaration?.kind === ts.SyntaxKind.EnumDeclaration
 }
 
 /**
