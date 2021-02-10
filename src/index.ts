@@ -26,10 +26,6 @@ export default function transformer(program: ts.Program): ts.TransformerFactory<
 			}, context)
 		}
 
-		const typeChecker = program.getTypeChecker()
-
-		transformerUtil.data.usageOfInstanceIsA = transformerUtil.findInstanceIsAUsages(file, typeChecker)
-
 		return visitNodeAndChildren(replaceIndexNode(file), program, context)
 	}
 }

@@ -6,18 +6,6 @@ import * as utility from "./utility";
 
 export const OBJECT_NAME = "t";
 export const MARCO_NAME = "$terrify";
-export const instanceIsA = "instanceIsA";
-
-/**
- * builds real path by relative path
- */
-
-function getRealPath(filePath: string): string {
-
-	return path.join(__dirname, "..", filePath)
-}
-
-const indexTsPath = getRealPath("index.d.ts")
 
 const typePath = getInstalledPathSync("@rbxts/types", { local: true })
 
@@ -291,49 +279,6 @@ export function is_t_ImportDeclaration(program: ts.Program) {
 	}
 }
 
-/**
- * Finds all FromIoTs usages in the file
- * and returns a record of type ids and
- * expressions that types to be replaced
- */
-
-export const data: { usageOfInstanceIsA: Record<number, ts.Type> } = {
-	usageOfInstanceIsA: {}
-}
-
-export function findInstanceIsAUsages(file: ts.SourceFile, typeChecker: ts.TypeChecker): Record<number, ts.Type> {
-
-	const handleNode = (node: ts.Identifier): Record<number, ts.Type> => {
-
-		if (ts.isImportSpecifier(node.parent))
-			return {}
-
-		const symbol = utility.getAliasedSymbolOfNode(node, typeChecker)
-
-		if (symbol === undefined || !utility.isSymbolOf(symbol, instanceIsA, indexTsPath))
-			return {}
-
-		const parent = ts.isPropertyAccessOrQualifiedName(node.parent) ? node.parent.parent : node.parent
-
-		const args = (<any>parent).typeArguments
-
-		const type = typeChecker.getTypeFromTypeNode(<any>parent)
-
-		return { [utility.getTypeId(type)]: args[0] }
-	}
-
-	const visitor = (node: ts.Node): Record<number, ts.Type> => {
-
-		const nodeResult = ts.isIdentifier(node) ? handleNode(node) : {}
-
-		const childrenResult = node.getChildren().map(visitor)
-
-		return [nodeResult, ...childrenResult].reduce(utility.mergeObjects)
-	}
-
-	return visitor(file)
-}
-
 export function buildType(type: ts.Type, typeChecker: ts.TypeChecker): ts.Expression {
 	const stringType = typeChecker.typeToString(type)
 
@@ -344,19 +289,16 @@ export function buildType(type: ts.Type, typeChecker: ts.TypeChecker): ts.Expres
 	if (type.isClass())
 		throw new Error("Transformation of classes is not supported")
 
-	const typeId = utility.getTypeId(type)
-
-	const fromIoTs = data.usageOfInstanceIsA[typeId]
-
-	if (type.symbol?.declarations?.[0]?.getSourceFile()?.fileName === instanceDefType) {
-		return createMethodCall("instanceIsA", [factory.createStringLiteral(stringType)])
-    }
 	// Basic types transformation
 	if (["null", "undefined", "void", "unknown"].includes(stringType))
 		return createPropertyAccess("none")
 
 	if (ROBLOX_TYPES.includes(stringType))
 		return createPropertyAccess(stringType)
+
+	if (type.symbol?.declarations?.[0]?.getSourceFile()?.fileName === instanceDefType) {
+		return createMethodCall("instanceIsA", [factory.createStringLiteral(stringType)])
+    }
 
 	if (utility.isBrickColorType(type))
 		return createPropertyAccess("BrickColor")
