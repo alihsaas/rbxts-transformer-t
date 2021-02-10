@@ -19,6 +19,10 @@ function getRealPath(filePath: string): string {
 
 const indexTsPath = getRealPath("index.d.ts")
 
+const typePath = getInstalledPathSync("@rbxts/types", { local: true })
+
+const instanceDefType = path.join(typePath, "include" ,"generated" ,"None.d.ts")
+
 function get_t_Path(): string {
 	try {
 		return getInstalledPathSync("@rbxts/t", { local: true })
@@ -344,9 +348,9 @@ export function buildType(type: ts.Type, typeChecker: ts.TypeChecker): ts.Expres
 
 	const fromIoTs = data.usageOfInstanceIsA[typeId]
 
-	if (fromIoTs !== undefined)
+	if (type.symbol?.declarations?.[0]?.getSourceFile()?.fileName === instanceDefType) {
 		return createMethodCall("instanceIsA", [factory.createStringLiteral(stringType)])
-
+    }
 	// Basic types transformation
 	if (["null", "undefined", "void", "unknown"].includes(stringType))
 		return createPropertyAccess("none")

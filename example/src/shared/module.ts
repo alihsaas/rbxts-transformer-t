@@ -1,4 +1,4 @@
-import { $terrify, instanceIsA } from '../../..';
+import { $terrify } from '../../..';
 
 interface ExtendedType {
 	Property: "!";
@@ -36,7 +36,7 @@ interface Type extends ExtendedType {
 
 	enum: Enum.Material;
 	map: Map<Instance, string>;
-	instanceIsA: instanceIsA<BasePart>
+	instanceIsA: Folder
 }
 
 const terrifiedType = $terrify<Type>();
