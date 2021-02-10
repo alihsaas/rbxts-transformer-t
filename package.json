@@ -1,6 +1,6 @@
 {
   "name": "rbxts-transformer-t",
-  "version": "0.3.0",
+  "version": "1.0.0",
   "description": "TypeScript transformer which converts TypeScript types to t entities",
   "main": "out/index.js",
   "scripts": {
