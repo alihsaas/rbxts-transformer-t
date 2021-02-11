@@ -8,9 +8,6 @@ import { buildType } from "./transformer";
 let didReplaceImport = false;
 
 export default function transformer(program: ts.Program): ts.TransformerFactory<ts.SourceFile> {
-	console.log(`[t-ts-transformer INFO] If you get any problems using this transformer, please
-	leave an issue on GitHub https://github.com/alihsaas/rbxts-transformer-t/issues with your type example`)
-
 	return (context: ts.TransformationContext) => (file: ts.SourceFile) => {
 
 		const replaceIndexNode = (file: ts.SourceFile) => {
