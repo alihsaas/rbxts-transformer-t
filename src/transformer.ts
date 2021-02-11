@@ -253,40 +253,41 @@ function convertInterfaceType(type: ts.InterfaceType, typeChecker: ts.TypeChecke
 }
 
 function convertEnumType(type: ts.Type, typeChecker: ts.TypeChecker): ts.Expression {
-    const result: ts.Expression[] = []
+    const enumDeclaration = type.symbol.valueDeclaration as ts.EnumDeclaration;
+    const result: ts.Expression[] = [];
 
-    console.log(type.symbol.exports?.forEach((value, index) => {
+    for (const member of enumDeclaration.members) {
+        const value = typeChecker.getConstantValue(member);
 
-        console.log(value)
+        if (typeof value === "string")
+            result.push(factory.createStringLiteral(value));
+        else if (typeof value === "number")
+            result.push(factory.createNumericLiteral(value));
+        else
+            throw `Unsupported!`;
+    }
 
-        result.push(factory.createStringLiteral(index.toString()))
-    }))
-
-    return createMethodCall("literal", result)
+    return createMethodCall("literal", result);
 }
 
 let tTypeDefinitions = fs.readFileSync(path.join(get_t_Path(), "lib", "t.d.ts"), "utf8")
 
 export function is_t_ImportDeclaration(program: ts.Program) {
 	return (node: ts.Node) => {
-		if (!ts.isImportDeclaration(node)) {
-			return false;
-		}
+		if (!ts.isImportDeclaration(node))
+			return false
 
-		if (!node.importClause) {
-			return false;
-		}
+		if (!node.importClause)
+			return false
 
 		const namedBindings = node.importClause.namedBindings;
-		if (!node.importClause.name && !namedBindings) {
-			return false;
-		}
+		if (!node.importClause.name && !namedBindings)
+			return false
 
 		const importSymbol = program.getTypeChecker().getSymbolAtLocation(node.moduleSpecifier);
-8
-		if (!importSymbol || importSymbol.valueDeclaration.getSourceFile().text !== tTypeDefinitions) {
-			return false;
-		}
+
+		if (!importSymbol || importSymbol.valueDeclaration.getSourceFile().text !== tTypeDefinitions)
+			return false
 
 		return true;
 	}
