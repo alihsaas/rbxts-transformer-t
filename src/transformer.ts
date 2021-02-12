@@ -310,8 +310,10 @@ export function buildType(type: ts.Type, typeChecker: ts.TypeChecker): ts.Expres
 	if (ROBLOX_TYPES.includes(stringType))
 		return createPropertyAccess(stringType)
 
-	if (type.symbol?.declarations?.[0]?.getSourceFile()?.fileName === instanceDefType) {
-		return createMethodCall("instanceIsA", [factory.createStringLiteral(stringType)])
+	const fileName = type.symbol?.declarations?.[0]?.getSourceFile()?.fileName;
+
+    if (fileName && path.normalize(fileName) === instanceDefType) {
+        return createMethodCall("instanceIsA", [factory.createStringLiteral(stringType)])
     }
 
 	if (utility.isBrickColorType(type))
