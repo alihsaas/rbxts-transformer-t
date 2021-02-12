@@ -9,7 +9,7 @@ export const MARCO_NAME = "$terrify";
 
 const typePath = getInstalledPathSync("@rbxts/types", { local: true })
 
-const instanceDefType = path.join(typePath, "include" ,"generated" ,"None.d.ts")
+const instanceDefType = path.normalize(path.join(typePath, "include" ,"generated" ,"None.d.ts"))
 
 function get_t_Path(): string {
 	try {
