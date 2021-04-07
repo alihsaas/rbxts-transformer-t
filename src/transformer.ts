@@ -359,10 +359,10 @@ export function buildType(type: ts.Type, typeChecker: ts.TypeChecker): ts.Expres
 		else if (utility.isArrayType(type, typeChecker))
 			return convertArrayType(type, typeChecker)
 
-		else if (utility.isObjectType(type))
+		else if (utility.isObjectType(type) || type.isIntersection())
 			return convertObjectType(type.getProperties(), typeChecker)
 
-		if (type.isClassOrInterface())
+		else if (type.isClassOrInterface())
 			return convertInterfaceType(type, typeChecker)
 
 	} catch (err) {
