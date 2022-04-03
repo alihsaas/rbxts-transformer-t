@@ -234,7 +234,7 @@ function convertInterfaceType(type: ts.InterfaceType, typeChecker: ts.TypeChecke
 
 	const object = convertObjectType(props, typeChecker)
 
-	const parents = type.symbol.declarations
+	const parents = type.symbol.declarations! // TODO
 		.map((d: any) => d.heritageClauses)
 		.filter(Boolean)
 		.reduce(utility.mergeArrays, [])
@@ -286,7 +286,7 @@ export function is_t_ImportDeclaration(program: ts.Program) {
 
 		const importSymbol = program.getTypeChecker().getSymbolAtLocation(node.moduleSpecifier);
 
-		if (!importSymbol || importSymbol.valueDeclaration.getSourceFile().text !== tTypeDefinitions)
+		if (!importSymbol || importSymbol.valueDeclaration!.getSourceFile().text !== tTypeDefinitions) // TODO
 			return false
 
 		return true;

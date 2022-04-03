@@ -46,7 +46,7 @@ function visitNode(node: ts.Node, program: ts.Program): ts.VisitResult<ts.Node> 
 						false,
 						undefined,
 						factory.createNamedImports([
-							factory.createImportSpecifier(undefined, factory.createIdentifier(transformerUtil.OBJECT_NAME))
+							factory.createImportSpecifier(false, undefined, factory.createIdentifier(transformerUtil.OBJECT_NAME))
 						]),
 					),
 					factory.createStringLiteral("@rbxts/t")),
@@ -116,7 +116,7 @@ function isModuleImportExpression(node: ts.Node, program: ts.Program) {
 
 	const importSymbol = program.getTypeChecker().getSymbolAtLocation(node.moduleSpecifier);
 
-	if (!importSymbol || !isModule(importSymbol.valueDeclaration.getSourceFile()))
+	if (!importSymbol || !isModule(importSymbol.valueDeclaration!.getSourceFile())) // TODO
 		return false;
 
 	return true;

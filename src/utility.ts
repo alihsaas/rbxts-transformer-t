@@ -225,8 +225,8 @@ export function isSymbolOf(symbol: ts.Symbol, name: string, filePath: string): b
 	if (symbol.escapedName !== name)
 		return false
 
-	return [symbol.valueDeclaration, ...symbol.declarations].filter(Boolean)
-		.some(declaration => path.join(declaration.getSourceFile().fileName) === filePath)
+	return [symbol.valueDeclaration, ...symbol.declarations!].filter(Boolean) // TODO
+		.some(declaration => path.join(declaration!.getSourceFile().fileName) === filePath)
 }
 
 /**
